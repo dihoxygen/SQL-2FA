@@ -1,4 +1,17 @@
-.env/
+# Secrets
+.env
+
+# Virtual environments
+env/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# OS/editor
 .DS_Store
 .vscode/
-*.log
