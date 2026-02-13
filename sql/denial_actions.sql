@@ -17,7 +17,7 @@ begin
     --LOG DENIAL 
     /*Denial reasons and Denier Notes should be enforced with this status in the application logic*/
     insert into sql2fa."REQUEST_EVENTS" (request_id, event_seq, current_status, status_change_dt, old_sql_text, denial_code, denier_notes, status_changed_by_operator_id)
-    values (req_request_id, (select coalesce(max(event_seq),0)+1 from sql2fa."REQUEST_EVENTS" where request_id = a_request_id), approver_decision, now(), curr_sql,
+    values (req_request_id, (select coalesce(max(event_seq),0)+1 from sql2fa."REQUEST_EVENTS" where request_id = req_request_id), approver_decision, now(), curr_sql,
     d_denial_code, d_denier_notes, a_approver_id);
 
 

@@ -1,0 +1,36 @@
+
+
+
+
+body {
+    font-family:Arial, Helvetica, sans-serif;
+    display: flex;
+    background-color: #b9eded;
+    min-height: 100vh;
+    margin: 0;
+    justify-content: center;
+    align-items: center
+    
+}
+
+.page {
+    display: flex;
+    flex-direction: column;/*Stacks it above the loging box*/
+    align-items: center;
+    text-align: center;
+}
+
+
+
+
+
+.form-container {
+    background-color:#4c91a8 ;
+    display: inline-flexbox;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 12px;
+    width: 300px;
+    height: 10vh
+} 

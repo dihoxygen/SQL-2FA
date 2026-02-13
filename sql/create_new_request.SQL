@@ -13,7 +13,7 @@ values (c_requestor_id, UPPER(TRIM(c_current_requested_sql)), c_current_status, 
 returning request_id, requestor_id into c_request_id, c_op_changed_by;
 --REQUEST_EVENTS
 insert into sql2fa."REQUEST_EVENTS" (request_id, event_seq, current_status, status_change_dt, old_sql_text, status_changed_by_operator_id)
-values (c_request_id, 0, c_current_status, now(), UPPER(TRIM(c_current_requested_sql)), c_requestor_id);
+values (c_request_id, 0, c_current_status, now(), UPPER(TRIM(c_current_requested_sql)), c_requestor_id);--need to change this datatype to default ' '
 
 end;
-$$
+$$s
