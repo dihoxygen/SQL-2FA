@@ -1,10 +1,9 @@
-create or replace function sql2fa.assign_approver(a_request_id uuid, a_approver_id char(4), a_current_status sql2fa.status_codes)
-
-returns void --storing uuid created in new request to populate related table
-language plpgsql
-security definer as $$
-declare curr_sql text;
-
+create or replace function sql2fa.assign_approver (
+  a_request_id uuid,
+  a_approver_id char(4),
+  a_current_status sql2fa.status_codes
+) returns void --storing uuid created in new request to populate related table
+language plpgsql security definer as $$
 /*Variables*/
 declare curr_sql text;
 begin
@@ -16,8 +15,14 @@ begin
 
 
     --REQUEST_EVENTS
-    insert into sql2fa."REQUEST_EVENTS" (request_id, event_seq, current_status, status_change_dt, old_sql_text, status_changed_by_operator_id)
-    values (a_request_id, (select coalesce(max(event_seq),0)+1 from sql2fa."REQUEST_EVENTS" where request_id = a_request_id), a_current_status, now(), curr_sql, a_approver_id);
+    insert into sql2fa."REQUEST_EVENTS" (request_id, event_seq, current_status, status_change_dt, prev_sql_text, current_sql_text, status_changed_by_operator_id)
+    values (a_request_id, (select coalesce(max(event_seq),0)+1 from sql2fa."REQUEST_EVENTS" where request_id = a_request_id), a_current_status, now(),
+    (select prev_sql_text from sql2fa."REQUEST_EVENTS"
+    where request_id = req_request_id
+    order by event_seq DESC
+    limit 1),
+    curr_sql,
+    a_approver_id);
 
 end;
 
