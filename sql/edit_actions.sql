@@ -4,10 +4,7 @@ create or replace function sql2fa.edit_actions(
     requestor_action sql2fa.status_codes, 
     new_sql text, 
     edit_notes text default ' '
-)
-returns void
-language plpgsql
-security definer as $$
+) returns void language plpgsql security definer as $$
 /*Variables*/
 declare prev_sql text; curr_sql text;
 
