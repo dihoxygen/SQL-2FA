@@ -1,35 +1,33 @@
-
-create
-or replace function sql2fa.execute_start (
+CREATE OR REPLACE FUNCTION sql2fa.execute_start (
     req_request_id uuid,
     r_requestor_id char(4),
     execute_status sql2fa.status_codes,
-    out execute_sql text -- returns sql text to be used in application logic (and hence the prod table)
-)   language plpgsql security definer as $$
+    OUT execute_sql text -- returns sql text to be used in application logic (and hence the prod table)
+)
+LANGUAGE plpgsql SECURITY DEFINER AS $$
 /*Variables*/
-declare prev_sql text; execute_sql text;
+DECLARE prev_sql text; execute_sql text;
 
-begin
+BEGIN
 
---GENERATE EXECUTE_ID
+    --GENERATE EXECUTE_ID
 
---RETURN PREVIOUS SQL INTO PREV_SQL VARIABLE TO USE IN REQUEST_EVENTS
-select
-    current_requested_sql into prev_sql
-where request_id = req_request_id;
+    --RETURN PREVIOUS SQL INTO PREV_SQL VARIABLE TO USE IN REQUEST_EVENTS
+    SELECT
+        current_requested_sql INTO prev_sql
+    WHERE request_id = req_request_id;
 
---UPDATE STATUS AND NEW SQL
-update sql2fa."REQUESTS"
-set
-    current_status = execute_status, execute_id = execute_id
-where
-    request_id = req_request_id 
-    returning current_requested_sql, prev_requested_sql into execute_sql, prev_sql; --passing execute_sql to be used in request_events
+    --UPDATE STATUS AND NEW SQL
+    UPDATE sql2fa."REQUESTS"
+    SET
+        current_status = execute_status,
+        execute_id = execute_id
+    WHERE
+        request_id = req_request_id
+    RETURNING current_requested_sql, prev_requested_sql INTO execute_sql, prev_sql; --passing execute_sql to be used in request_events
 
-
---LOG EDIT
-insert into
-    sql2fa."REQUEST_EVENTS" (
+    --LOG EDIT
+    INSERT INTO sql2fa."REQUEST_EVENTS" (
         request_id,
         event_seq,
         current_status,
@@ -38,7 +36,7 @@ insert into
         current_sql_text,
         status_changed_by_operator_id
     )
-values
+    VALUES
     (
         req_request_id,
         (select coalesce(max(event_seq), 0) + 1 from sql2fa."REQUEST_EVENTS" 
@@ -51,6 +49,5 @@ values
         r_requestor_id
     );
 
-end;
-
-$$
+END;
+$$;

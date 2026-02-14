@@ -1,32 +1,29 @@
-
-create
-or replace function sql2fa.execute_success (
-    out req_request_id uuid,
+CREATE OR REPLACE FUNCTION sql2fa.execute_success (
+    OUT req_request_id uuid,
     r_requestor_id char(4),
     record_count int,
-    manager_dml text default ' ',
-    reason_for_manager_dml text default ' ',
-    out execute_id uuid-- returns sql text to be used in application logic (and hence the prod table)
-)   language plpgsql security definer as $$
+    manager_dml text DEFAULT ' ',
+    reason_for_manager_dml text DEFAULT ' ',
+    OUT execute_id uuid -- returns sql text to be used in application logic (and hence the prod table)
+)
+LANGUAGE plpgsql SECURITY DEFINER AS $$
 /*Variables*/
-declare exec_id uuid;
+DECLARE exec_id uuid;
 
-begin
+BEGIN
 
---GENERATE EXECUTE_ID
+    --GENERATE EXECUTE_ID
     execute_id := gen_random_uuid();
 
-
-    update sql2fa."REQUESTS"
-    set
+    UPDATE sql2fa."REQUESTS"
+    SET
         execute_id = execute_id
-    where
+    WHERE
         request_id = req_request_id
-    returning execute_id into exec_id;
-
+    RETURNING execute_id INTO exec_id;
 
     --INSERT INTO EXECUTION_EVENTS
-    insert into sql2fa."REQUEST_EVENTS" (
+    INSERT INTO sql2fa."REQUEST_EVENTS" (
         request_id,
         execute_id,
         counter,
@@ -34,10 +31,10 @@ begin
         manager_dml,
         reason_for_manager_dml,
         date_executed
-
     )
-    values
-    (   req_request_id,
+    VALUES
+    (
+        req_request_id,
         exec_id,
         (select coalesce(max(event_seq), 0) + 1 from sql2fa."EXECUTION_EVENTS" 
         where excute_id = execute_id),
@@ -45,8 +42,7 @@ begin
         manager_dml,
         reason_for_manager_dml,
         trunc(now())
-        );
+    );
 
-end;
-
-$$
+END;
+$$;

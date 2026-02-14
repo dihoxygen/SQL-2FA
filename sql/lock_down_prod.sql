@@ -1,49 +1,48 @@
 -- Group role for all human users who may connect directly
-create role rdbms_readonly nologin;
+CREATE ROLE rdbms_readonly NOLOGIN;
 
 -- Let them connect to the DB
-grant connect on database postgres to rdbms_readonly;
+GRANT CONNECT ON DATABASE postgres TO rdbms_readonly;
 
 -- Let them see objects in the schema
-grant usage on schema prod to rdbms_readonly;
+GRANT USAGE ON SCHEMA prod TO rdbms_readonly;
 
 -- Allow SELECT on all existing tables
-grant select on all tables in schema prod to rdbms_readonly;
+GRANT SELECT ON ALL TABLES IN SCHEMA prod TO rdbms_readonly;
 
 -- If they need to query sequences (often not needed for SELECT-only, but safe)
-grant usage, select on all sequences in schema prod to rdbms_readonly;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA prod TO rdbms_readonly;
 
 -- Ensure future tables are also readable
-alter default privileges in schema prod
-grant select on tables to rdbms_readonly;
+ALTER DEFAULT PRIVILEGES IN SCHEMA prod
+GRANT SELECT ON TABLES TO rdbms_readonly;
 
-alter default privileges in schema prod
-grant usage, select on sequences to rdbms_readonly;
-
+ALTER DEFAULT PRIVILEGES IN SCHEMA prod
+GRANT USAGE, SELECT ON SEQUENCES TO rdbms_readonly;
 
 
 -- Remove any accidental write permissions from the group role
-revoke insert, update, delete on all tables in schema prod from rdbms_readonly;
-revoke truncate, references, trigger on all tables in schema prod from rdbms_readonly;
+REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA prod FROM rdbms_readonly;
+REVOKE TRUNCATE, REFERENCES, TRIGGER ON ALL TABLES IN SCHEMA prod FROM rdbms_readonly;
 
 
 --granting read only role to test users
-create role garrett_login
-login
-password 'gSkurkaDurk29!';
+CREATE ROLE garrett_login
+LOGIN
+PASSWORD 'gSkurkaDurk29!';
 
-create role anthony_login
-login
-password 'OppenVaderJabra88*';
+CREATE ROLE anthony_login
+LOGIN
+PASSWORD 'OppenVaderJabra88*';
 
-create role Yen_Yao_login
-login
-password 'tester_!7980*';
+CREATE ROLE Yen_Yao_login
+LOGIN
+PASSWORD 'tester_!7980*';
 
-grant rdbms_readonly to garrett_login, anthony_login, Yen_Yao_login
+GRANT rdbms_readonly TO garrett_login, anthony_login, Yen_Yao_login;
 
 
 -- creating a role for the app execute function to make changes
-create role requestAppExecutor login password 'OppenVaderJabra88*';
+CREATE ROLE requestAppExecutor LOGIN PASSWORD 'OppenVaderJabra88*';
 
-grant usage on schema prod to requestAppExecutor;
+GRANT USAGE ON SCHEMA prod TO requestAppExecutor;

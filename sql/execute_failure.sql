@@ -1,24 +1,24 @@
-create or replace function sql2fa.execute_failure (
-    out req_request_id uuid,
+CREATE OR REPLACE FUNCTION sql2fa.execute_failure (
+    OUT req_request_id uuid,
     exec_id uuid,
     reason_for_failure text,
-    out execute_id uuid,
+    OUT execute_id uuid,
     fail_status sql2fa.status_codes
 )
-language plpgsql security definer as $$
+LANGUAGE plpgsql SECURITY DEFINER AS $$
 /*Variables*/
-declare curr_sql text;
-begin
-   
-    --UPDATE REQUEST STATUS TO FAILURE: CODE = N
-    update sql2fa."REQUESTS"
-    set
-        current_status = fail_status
-    where
-        request_id = req_request_id
-        returning current_requested_sql into curr_sql;
+DECLARE curr_sql text;
+BEGIN
 
-    insert into sql2fa."REQUEST_EVENTS" (
+    --UPDATE REQUEST STATUS TO FAILURE: CODE = N
+    UPDATE sql2fa."REQUESTS"
+    SET
+        current_status = fail_status
+    WHERE
+        request_id = req_request_id
+    RETURNING current_requested_sql INTO curr_sql;
+
+    INSERT INTO sql2fa."REQUEST_EVENTS" (
         request_id,
         event_seq,
         current_status,
@@ -27,7 +27,7 @@ begin
         current_requested_sql,
         status_changed_by_operator_id
     )
-    values
+    VALUES
     (
         req_request_id,
         (select coalesce(max(event_seq), 0) + 1 from sql2fa."REQUEST_EVENTS" 
@@ -42,5 +42,6 @@ begin
         curr_sql,
         'SYST' -- SYST IS THE DEFAULT OPERATOR ID FOR SYSTEM-GENERATED EVENTS
     );
-end;
+
+END;
 $$;

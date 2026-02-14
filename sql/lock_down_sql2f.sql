@@ -1,21 +1,21 @@
 -- Group role for all human users who may connect directly
-create role rdbms_readonly nologin;
+CREATE ROLE rdbms_readonly NOLOGIN;
 
 -- Let them connect to the DB
-grant connect on database postgres to rdbms_readonly;
+GRANT CONNECT ON DATABASE postgres TO rdbms_readonly;
 
 -- Let them see objects in the schema
-grant usage on schema prod to rdbms_readonly;
+GRANT USAGE ON SCHEMA prod TO rdbms_readonly;
 
 -- Allow SELECT on all existing tables
-grant select on all tables in schema prod to rdbms_readonly;
+GRANT SELECT ON ALL TABLES IN SCHEMA prod TO rdbms_readonly;
 
 -- If they need to query sequences (often not needed for SELECT-only, but safe)
-grant usage, select on all sequences in schema prod to rdbms_readonly;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA prod TO rdbms_readonly;
 
 -- Ensure future tables are also readable
-alter default privileges in schema prod
-grant select on tables to rdbms_readonly;
+ALTER DEFAULT PRIVILEGES IN SCHEMA prod
+GRANT SELECT ON TABLES TO rdbms_readonly;
 
-alter default privileges in schema prod
-grant usage, select on sequences to rdbms_readonly;
+ALTER DEFAULT PRIVILEGES IN SCHEMA prod
+GRANT USAGE, SELECT ON SEQUENCES TO rdbms_readonly;

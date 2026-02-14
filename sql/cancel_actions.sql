@@ -1,25 +1,26 @@
-create
-or replace function sql2fa.edit_actions (
+CREATE OR REPLACE FUNCTION sql2fa.edit_actions (
     req_request_id uuid,
     r_requestor_id char(4),
     requestor_action sql2fa.status_codes,
-    cancel_notes text default ' '
-) returns void language plpgsql security definer as $$
+    cancel_notes text DEFAULT ' '
+) RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER AS $$
 /*Variables*/
-declare curr_sql text;
+DECLARE curr_sql text;
 
-begin
---STATUS UPDATE
-update sql2fa."REQUESTS"
-set
-    current_status = requestor_action
-where
-    request_id = req_request_id returning current_requested_sql into curr_sql;
+BEGIN
 
---passing curr_sql to be used in request_events
---LOG CANCELLATION
-insert into
-    sql2fa."REQUEST_EVENTS" (
+    --STATUS UPDATE
+    UPDATE sql2fa."REQUESTS"
+    SET
+        current_status = requestor_action
+    WHERE
+        request_id = req_request_id
+    RETURNING current_requested_sql INTO curr_sql;
+
+    --passing curr_sql to be used in request_events
+    --LOG CANCELLATION
+    INSERT INTO sql2fa."REQUEST_EVENTS" (
         request_id,
         event_seq,
         current_status,
@@ -29,13 +30,13 @@ insert into
         requestor_edit_notes,
         status_changed_by_operator_id
     )
-values
+    VALUES
     (
         req_request_id,
         (select coalesce(max(event_seq), 0) + 1 from sql2fa."REQUEST_EVENTS" 
         where request_id = req_request_id),
         requestor_action,
-        now (),
+        now(),
         (select prev_sql_text from sql2fa."REQUEST_EVENTS"
         where request_id = req_request_id
         order by event_seq DESC
@@ -45,4 +46,5 @@ values
         r_requestor_id
     );
 
-end;$$
+END;
+$$;
