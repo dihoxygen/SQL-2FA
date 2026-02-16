@@ -23,7 +23,7 @@ BEGIN
     RETURNING execute_id INTO exec_id;
 
     --INSERT INTO EXECUTION_EVENTS
-    INSERT INTO sql2fa."REQUEST_EVENTS" (
+    INSERT INTO sql2fa."EXECUTION_EVENTS" (
         request_id,
         execute_id,
         counter,
@@ -36,13 +36,14 @@ BEGIN
     (
         req_request_id,
         exec_id,
-        (select coalesce(max(event_seq), 0) + 1 from sql2fa."EXECUTION_EVENTS" 
+        (select coalesce(max(counter), 0) + 1 from sql2fa."EXECUTION_EVENTS" 
         where excute_id = execute_id),
         record_count,
         manager_dml,
         reason_for_manager_dml,
         trunc(now())
     );
+
 
 END;
 $$;
