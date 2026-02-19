@@ -5,13 +5,18 @@ However for this MVP, we will give manager read_write access to write to prod.
 create or replace function sql2fa.execute_manager_dml(
     req_request_id uuid,
     r_requestor_id char(4),
-    manager_dml text,
-    reason_for_manager_dml text,
-    OUT execute_id uuid -- returns sql text to be used in application logic (and hence the prod table)
+    manager_sql text,
+    reason_for_executing_manager_dml text,
+    execute_id uuid -- returns sql text to be used in application logic (and hence the prod table)
 )
 returns void
 language plpgsql security definer as $$
 begin
     -- execute the manager dml
-    execute manager_dml;
+    UPDATE sql2fa."REQUESTS_EXECUTIONS"
+    SET
+        manager_dml = manager_sql,
+        reason_for_manager_dml = reason_for_executing_manager_dml
+    WHERE
+        request_id = req_request_id and execute_id = execute_id
 end;

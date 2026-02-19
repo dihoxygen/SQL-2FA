@@ -46,3 +46,7 @@ GRANT rdbms_readonly TO garrett_login, anthony_login, Yen_Yao_login;
 CREATE ROLE requestAppExecutor LOGIN PASSWORD 'OppenVaderJabra88*';
 
 GRANT USAGE ON SCHEMA prod TO requestAppExecutor;
+
+
+-- granting read, insert, update, delete permissions to the requestAppExecutor role for all tables in the prod schema
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA prod TO requestAppExecutor;    -- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA prod TO requestAppExecutor;
