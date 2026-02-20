@@ -12,6 +12,12 @@ __pycache__/
 # Logs
 *.log
 
+
+
 # OS/editor
 .DS_Store
-.vscode/
+
+
+# SQL
+sql/lock_down_prod.sql
+sql/lock_down_sql2fa.sql

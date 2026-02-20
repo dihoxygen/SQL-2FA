@@ -43,7 +43,7 @@ GRANT rdbms_readonly TO garrett_login, anthony_login, Yen_Yao_login;
 
 
 -- creating a role for the app execute function to make changes
-CREATE ROLE requestAppExecutor LOGIN PASSWORD 'OppenVaderJabra88*';
+CREATE ROLE requestAppExecutor LOGIN PASSWORD '*';
 
 GRANT USAGE ON SCHEMA prod TO requestAppExecutor;
 
