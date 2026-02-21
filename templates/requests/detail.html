@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Request Detail - SQL 2FA{% endblock %}
+
+{% block content %}
+<h1>Request Detail</h1>
+
+<div class="detail-header">
+    <p><strong>Request ID:</strong> {{ req.request_id }}</p>
+    <p><strong>Status:</strong> {{ req.current_status }} &mdash; {{ req.request_created_on }}</p>
+    <p><strong>Description:</strong> {{ req.current_requested_sql }}</p>
+</div>
+
+<h2>History</h2>
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Resource ID</th>
+            <th>Status Change</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in events %}
+        <tr>
+            <td>{{ event.status_change_dt }}</td>
+            <td>{{ event.status_changed_by_operator_id }}</td>
+            <td>{{ event.current_status }}</td>
+            <td>{{ event.approver_notes or event.requestor_edit_notes or '' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4">No history yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="action-buttons">
+    {% if can_execute %}
+    <form method="POST" action="{{ url_for('requests.execute', request_id=req.request_id) }}"
+          style="display:inline;">
+        <button type="submit" class="btn-primary"
+                onclick="return confirm('Are you sure you want to execute this DML?')">
+            Execute DML
+        </button>
+    </form>
+    {% endif %}
+
+    {% if can_cancel %}
+    <form method="POST" action="{{ url_for('requests.cancel', request_id=req.request_id) }}"
+          style="display:inline;">
+        <button type="submit" class="btn-danger"
+                onclick="return confirm('Cancel this request?')">
+            Cancel DML
+        </button>
+    </form>
+    {% endif %}
+
+    {% if can_edit %}
+    <a href="{{ url_for('requests.edit', request_id=req.request_id) }}">
+        <button type="button" class="btn-secondary">Edit DML</button>
+    </a>
+    {% endif %}
+</div>
+{% endblock %}

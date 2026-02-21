@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Register - SQL 2FA</title>
+</head>
+<body>
+<div class="page">
+    <header class="hero">
+        <h1>SQL 2FA</h1>
+        <p>Create a New Account</p>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages" style="width:100%;max-width:400px;padding:0;margin-bottom:1rem;">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="form-container">
+        <form action="{{ url_for('auth.register') }}" method="POST">
+            <h4>Register</h4>
+            <div class="input-group">
+                <label for="operator_id">Operator ID (4 characters)</label>
+                <input type="text" id="operator_id" name="operator_id"
+                       maxlength="4" placeholder="e.g. JDOE" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password (min 10 characters)</label>
+                <input type="password" id="password" name="password"
+                       minlength="10" placeholder="Choose a strong password" required>
+            </div>
+            <div class="input-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password"
+                       minlength="10" placeholder="Repeat your password" required>
+            </div>
+            <button type="submit" class="btn-primary">Create Account</button>
+        </form>
+        <p>
+            Already have an account? <a href="{{ url_for('auth.login') }}">Sign In</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

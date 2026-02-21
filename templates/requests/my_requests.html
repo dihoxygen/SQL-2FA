@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}My Requests - SQL 2FA{% endblock %}
+
+{% block content %}
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+    <h1>My Requests</h1>
+    <a href="{{ url_for('requests.create') }}">
+        <button type="button" class="btn-primary">+ New Request</button>
+    </a>
+</div>
+
+<form method="GET" class="filter-bar">
+    <div class="filter-group">
+        <label for="status">Approval Status</label>
+        <select name="status" id="status">
+            <option value="">All</option>
+            <option value="Z" {{ 'selected' if status_filter == 'Z' }}>Requested</option>
+            <option value="A" {{ 'selected' if status_filter == 'A' }}>Approved</option>
+            <option value="D" {{ 'selected' if status_filter == 'D' }}>Denied</option>
+            <option value="C" {{ 'selected' if status_filter == 'C' }}>Cancelled</option>
+            <option value="E" {{ 'selected' if status_filter == 'E' }}>Executed</option>
+            <option value="M" {{ 'selected' if status_filter == 'M' }}>Manager DML</option>
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <label for="date_from">From</label>
+        <input type="date" name="date_from" id="date_from" value="{{ date_from or '' }}">
+    </div>
+
+    <div class="filter-group">
+        <label for="date_to">To</label>
+        <input type="date" name="date_to" id="date_to" value="{{ date_to or '' }}">
+    </div>
+
+    <button type="submit">Filter</button>
+</form>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Request ID</th>
+            <th>Status</th>
+            <th>Date Requested</th>
+            <th>Target Date</th>
+            <th>DML Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr onclick="window.location='{{ url_for('requests.detail', request_id=row.request_id) }}'">
+            <td>{{ row.request_id | truncate(8, true, '') }}</td>
+            <td>{{ row.current_status }}</td>
+            <td>{{ row.request_created_on }}</td>
+            <td>{{ row.requested_target_date }}</td>
+            <td>{{ row.current_requested_sql | truncate(50) }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">No requests found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Request - SQL 2FA{% endblock %}
+
+{% block content %}
+<h1>Edit Request</h1>
+<p><strong>Request ID:</strong> {{ req.request_id }}</p>
+
+<form method="POST" style="max-width: 640px;">
+    <div class="form-group">
+        <label for="target_date">Date Requested for DML</label>
+        <input type="date" id="target_date" name="target_date"
+               value="{{ req.requested_target_date }}">
+    </div>
+
+    {% if req.current_status == 'D' %}
+    <div class="form-group">
+        <label>Denier Notes</label>
+        <textarea readonly rows="3">{{ req.denier_notes or '' }}</textarea>
+        <small>Denier Notes will only populate if Status = Denied</small>
+    </div>
+    {% endif %}
+
+    <div class="form-group">
+        <label for="dml_statement">Updated DML Statement</label>
+        <textarea id="dml_statement" name="dml_statement" rows="6" required
+                  >{{ req.current_requested_sql }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="edit_notes">What issues could arise (if any) from this DML?</label>
+        <textarea id="edit_notes" name="edit_notes" rows="4"
+                  placeholder="Input potential problems here..."></textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">Submit</button>
+        <a href="{{ url_for('requests.detail', request_id=req.request_id) }}">
+            <button type="button">Cancel</button>
+        </a>
+    </div>
+</form>
+{% endblock %}

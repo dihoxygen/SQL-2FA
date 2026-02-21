@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Approver Detail - SQL 2FA{% endblock %}
+
+{% block content %}
+<h1>Approver Detail</h1>
+
+<div class="detail-header">
+    <p><strong>Request ID:</strong> {{ req.request_id }}</p>
+    <p><strong>Status:</strong> {{ req.current_status }} &mdash; {{ req.request_created_on }}</p>
+    <p><strong>Description:</strong> {{ req.current_requested_sql }}</p>
+</div>
+
+<h2>History</h2>
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Resource ID</th>
+            <th>Status Change</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in events %}
+        <tr>
+            <td>{{ event.status_change_dt }}</td>
+            <td>{{ event.status_changed_by_operator_id }}</td>
+            <td>{{ event.current_status }}</td>
+            <td>{{ event.approver_notes or event.requestor_edit_notes or '' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4">No history yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if can_review %}
+<div class="action-buttons">
+    <a href="{{ url_for('approvals.approve', request_id=req.request_id) }}">
+        <button type="button" class="btn-primary">Approve DML</button>
+    </a>
+    <a href="{{ url_for('approvals.deny', request_id=req.request_id) }}">
+        <button type="button" class="btn-danger">Deny DML</button>
+    </a>
+</div>
+{% endif %}
+{% endblock %}

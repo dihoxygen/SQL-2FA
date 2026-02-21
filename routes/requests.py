@@ -1,21 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from sqlalchemy import text
 from db import sql2fa_engine, prod_engine
-from functools import wraps
+from helpers import login_required  # Shared decorator -- defined once in helpers.py
 
 requests_bp = Blueprint('requests', __name__)
-
-
-# ---------------------------------------------------------------------------
-# Auth helper (temporary -- will move to routes/auth.py later)
-# ---------------------------------------------------------------------------
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'operator_id' not in session:
-            return redirect(url_for('index'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 
 # ---------------------------------------------------------------------------

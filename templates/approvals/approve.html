@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Approve Request - SQL 2FA{% endblock %}
+
+{% block content %}
+<h1>Approve Request</h1>
+<p><strong>Request ID:</strong> {{ request_id }}</p>
+
+<form method="POST" style="max-width: 640px;">
+    <div class="form-group">
+        <label for="approver_notes">Approval Notes</label>
+        <textarea id="approver_notes" name="approver_notes" rows="4"
+                  placeholder="Optional notes for this approval..."></textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">Approve Request</button>
+        <a href="{{ url_for('approvals.detail', request_id=request_id) }}">
+            <button type="button">Cancel</button>
+        </a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>{% block title %}SQL 2FA{% endblock %}</title>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="{{ url_for('dashboard.home') }}" class="nav-brand">SQL 2FA</a>
+        <div class="nav-links">
+            <a href="{{ url_for('requests.my_requests') }}">My Requests</a>
+            <a href="{{ url_for('approvals.assigned_to_me') }}">Approvals</a>
+            <a href="{{ url_for('open_requests.list_open') }}">Open Requests</a>
+            <a href="{{ url_for('manager.manager_dashboard') }}">Manager</a>
+            <a href="{{ url_for('auth.change_password') }}">Password</a>
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Manager Detail - SQL 2FA{% endblock %}
+
+{% block content %}
+<h1>Manager Detail</h1>
+
+<div class="detail-header">
+    <p><strong>SQL ID:</strong> {{ req.request_id }}</p>
+    <p><strong>Status:</strong> {{ req.current_status }} &mdash; {{ req.request_created_on }}</p>
+    <p><strong>Description:</strong> {{ req.current_requested_sql }}</p>
+</div>
+
+<h2>History</h2>
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Resource ID</th>
+            <th>Status Change</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in events %}
+        <tr>
+            <td>{{ event.status_change_dt }}</td>
+            <td>{{ event.status_changed_by_operator_id }}</td>
+            <td>{{ event.current_status }}</td>
+            <td>{{ event.approver_notes or event.requestor_edit_notes or '' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4">No history.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="action-buttons">
+    <a href="{{ url_for('approvals.assigned_to_me') }}">
+        <button type="button">Back</button>
+    </a>
+    <a href="{{ url_for('manager.manager_dml', request_id=req.request_id) }}">
+        <button type="button" class="btn-primary">Run Manager DML</button>
+    </a>
+</div>
+{% endblock %}

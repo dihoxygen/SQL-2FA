@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Accept Request - SQL 2FA{% endblock %}
+
+{% block content %}
+<h1>Accept Request</h1>
+<p><strong>Request ID:</strong> {{ req.request_id }}</p>
+
+<div class="detail-info">
+    <div class="form-group">
+        <label>Date Requested for DML</label>
+        <input type="date" value="{{ req.requested_target_date }}" readonly>
+    </div>
+
+    <div class="form-group">
+        <label>DML Statement</label>
+        <textarea readonly rows="6">{{ req.current_requested_sql }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label>DML Purpose</label>
+        <textarea readonly rows="4">{{ req.dml_purpose or 'Not provided' }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Potential DML Issues</label>
+        <textarea readonly rows="4">{{ req.dml_issues or 'Not provided' }}</textarea>
+    </div>
+</div>
+
+<div class="action-buttons">
+    <form method="POST" action="{{ url_for('open_requests.accept', request_id=req.request_id) }}"
+          style="display:inline;">
+        <button type="submit" class="btn-primary">Accept Request</button>
+    </form>
+    <a href="{{ url_for('open_requests.list_open') }}">
+        <button type="button">Back</button>
+    </a>
+</div>
+{% endblock %}

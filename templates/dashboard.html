@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SQL 2FA{% endblock %}
+
+{% block content %}
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+    <div>
+        <h1>Dashboard</h1>
+        <p>Welcome back. Here's a quick look at your queues.</p>
+    </div>
+    <a href="{{ url_for('requests.create') }}">
+        <button type="button" class="btn-primary">+ New Request</button>
+    </a>
+</div>
+
+<section class="queue-section">
+    <h2>
+        My Requests
+        <a href="{{ url_for('requests.my_requests') }}">&rarr;</a>
+    </h2>
+
+    {% if my_requests %}
+        {% for row in my_requests %}
+        <div class="queue-card">
+            <a href="{{ url_for('requests.detail', request_id=row.request_id) }}">
+                <strong>{{ row.request_id | truncate(8, true, '') }}</strong>
+                <span>Status: {{ row.current_status }}</span>
+            </a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No active requests.</p>
+    {% endif %}
+</section>
+
+<section class="queue-section">
+    <h2>
+        Assigned to Me as Approver
+        <a href="{{ url_for('approvals.assigned_to_me') }}">&rarr;</a>
+    </h2>
+
+    {% if assigned_to_me %}
+        {% for row in assigned_to_me %}
+        <div class="queue-card">
+            <a href="{{ url_for('approvals.detail', request_id=row.request_id) }}">
+                <strong>{{ row.request_id | truncate(8, true, '') }}</strong>
+                <span>From: {{ row.requestor_id }}</span>
+            </a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No approvals waiting.</p>
+    {% endif %}
+</section>
+
+<section class="queue-section">
+    <h2>
+        Open Requests (Needs Approver)
+        <a href="{{ url_for('open_requests.list_open') }}">&rarr;</a>
+    </h2>
+
+    {% if needs_approver %}
+        {% for row in needs_approver %}
+        <div class="queue-card">
+            <a href="{{ url_for('open_requests.accept_view', request_id=row.request_id) }}">
+                <strong>{{ row.request_id | truncate(8, true, '') }}</strong>
+                <span>From: {{ row.requestor_id }}</span>
+            </a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No open requests.</p>
+    {% endif %}
+</section>
+{% endblock %}
