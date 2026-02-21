@@ -33,6 +33,7 @@ BEGIN
         event_seq,
         current_status,
         status_change_dt,
+        prev_sql_text,
         current_sql_text,
         status_changed_by_operator_id
     )
@@ -41,9 +42,10 @@ BEGIN
         0,
         c_current_status,
         now(),
+        ' ',
         UPPER(TRIM(c_current_requested_sql)),
         c_requestor_id
-    ); --need to change this datatype to default ' '
+    );
 
     RETURN c_request_id;
     
