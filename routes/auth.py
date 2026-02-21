@@ -1,5 +1,5 @@
 # routes/auth.py
-# Handles login and logout -- the first thing any user interacts with.
+# Handles login, logout, and password management.
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from sqlalchemy import text
@@ -60,69 +60,6 @@ def login():
 
     # GET request: just show the login form
     return render_template('login.html')
-
-
-@auth_bp.route('/register', methods=['GET', 'POST'])
-def register():
-    """
-    GET  /register -> Show the registration form.
-    POST /register -> Create the operator and set their password.
-
-    Two-step process:
-      1. INSERT a new row into sql2fa."OPERATOR" with the operator_id.
-         This creates the user but with no password yet (password_hash is NULL).
-      2. Call create_operator_password() to hash and store the password.
-         This function does an UPDATE on the row we just created.
-
-    We also confirm the password by requiring the user to type it twice.
-    Python checks that they match BEFORE touching the database.
-    """
-    if request.method == 'POST':
-        operator_id = request.form['operator_id'].strip().upper()
-        password = request.form['password']
-        confirm_password = request.form['confirm_password']
-
-        # Validate: passwords must match
-        if password != confirm_password:
-            flash('Passwords do not match.', 'error')
-            return redirect(url_for('auth.register'))
-
-        # Validate: operator_id must be exactly 4 characters (char(4) in DB)
-        if len(operator_id) != 4:
-            flash('Operator ID must be exactly 4 characters.', 'error')
-            return redirect(url_for('auth.register'))
-
-        try:
-            with sql2fa_engine.connect() as conn:
-                # Step 1: Create the operator row.
-                # If the operator_id already exists, the database will raise
-                # a unique constraint violation, which the except block catches.
-                conn.execute(
-                    text('INSERT INTO sql2fa."OPERATOR" (operator_id) VALUES (:op_id)'),
-                    {"op_id": operator_id},
-                )
-
-                # Step 2: Set the password using your plpgsql function.
-                # create_operator_password does:
-                #   UPDATE sql2fa."OPERATOR"
-                #   SET password_hash = crypt(plain_txt, gen_salt('bf', 12))
-                #   WHERE operator_id = op_id
-                conn.execute(
-                    text("SELECT sql2fa.create_operator_password(:op_id, :pw)"),
-                    {"op_id": operator_id, "pw": password},
-                )
-                conn.commit()
-
-            flash('Account created! You can now log in.', 'success')
-            return redirect(url_for('auth.login'))
-
-        except Exception as e:
-            # Most likely cause: operator_id already exists (unique constraint).
-            # str(e) contains the database error message.
-            flash(f'Could not create account: {e}', 'error')
-            return redirect(url_for('auth.register'))
-
-    return render_template('register.html')
 
 
 @auth_bp.route('/change-password', methods=['GET', 'POST'])
