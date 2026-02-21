@@ -6,8 +6,7 @@ CREATE OR REPLACE FUNCTION sql2fa.create_new_request (
 ) RETURNS uuid --storing uuid created in new request to populate related table
 LANGUAGE plpgsql SECURITY DEFINER AS $$
 /*Variables*/
-DECLARE c_request_id uuid; c_op_changed_by, curr_sql char(4);
-
+DECLARE c_request_id uuid; c_op_changed_by character;
 BEGIN
 
     --REQUESTS
@@ -33,6 +32,7 @@ BEGIN
         event_seq,
         current_status,
         status_change_dt,
+        prev_sql_text,
         current_sql_text,
         status_changed_by_operator_id
     )
@@ -41,6 +41,7 @@ BEGIN
         0,
         c_current_status,
         now(),
+        ' ', --default value for initial event, can be updated when status changes
         UPPER(TRIM(c_current_requested_sql)),
         c_requestor_id
     ); --need to change this datatype to default ' '
