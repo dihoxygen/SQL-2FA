@@ -29,6 +29,10 @@ def create():
         sql_text = request.form['dml_statement']
         target_date = request.form['target_date']
 
+        if len(operator_id) > 4:
+            flash("Operator ID must be 4 characters or fewer.", "error")
+            return redirect(url_for('requests.create'))
+
         with sql2fa_engine.connect() as conn:
             result = conn.execute(
                 text("SELECT sql2fa.create_new_request(:requestor_id, :sql, 'Z', :target_date)"),
