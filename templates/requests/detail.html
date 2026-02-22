@@ -27,7 +27,7 @@
             <td>{{ event.status_change_dt }}</td>
             <td>{{ event.status_changed_by_operator_id }}</td>
             <td>{{ event.current_status }}</td>
-            <td>{{ event.approver_notes or event.requestor_edit_notes or '' }}</td>
+            <td>{{ event.approver_notes or '' }}</td>
         </tr>
         {% else %}
         <tr><td colspan="4">No history yet.</td></tr>
@@ -47,13 +47,24 @@
     {% endif %}
 
     {% if can_cancel %}
-    <form method="POST" action="{{ url_for('requests.cancel', request_id=req.request_id) }}"
-          style="display:inline;">
-        <button type="submit" class="btn-danger"
-                onclick="return confirm('Cancel this request?')">
-            Cancel DML
-        </button>
-    </form>
+    <button type="button" class="btn-danger" onclick="document.getElementById('cancel-modal').showModal()">
+        Cancel DML
+    </button>
+
+    <dialog id="cancel-modal" class="modal">
+        <form method="POST" action="{{ url_for('requests.cancel', request_id=req.request_id) }}">
+            <h3>Are you sure you want to cancel?</h3>
+            <div class="form-group">
+                <label for="cancel_notes">Reason (optional)</label>
+                <textarea id="cancel_notes" name="cancel_notes" rows="3"
+                          placeholder="Provide a reason for cancellation..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn-danger">Confirm</button>
+                <button type="button" onclick="document.getElementById('cancel-modal').close()">Back</button>
+            </div>
+        </form>
+    </dialog>
     {% endif %}
 
     {% if can_edit %}

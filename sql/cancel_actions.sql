@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION sql2fa.edit_actions (
+CREATE OR REPLACE FUNCTION sql2fa.cancel_actions (
     req_request_id uuid,
     r_requestor_id char(4),
     requestor_action sql2fa.status_codes,
@@ -13,7 +13,8 @@ BEGIN
     --STATUS UPDATE
     UPDATE sql2fa."REQUESTS"
     SET
-        current_status = requestor_action
+        current_status = requestor_action,
+        cancel_notes = cancel_notes
     WHERE
         request_id = req_request_id
     RETURNING current_requested_sql INTO curr_sql;
@@ -25,9 +26,8 @@ BEGIN
         event_seq,
         current_status,
         status_change_dt,
-        old_sql_text,
-        new_sql_text,
-        requestor_edit_notes,
+        prev_sql_text,
+        current_sql_text,
         status_changed_by_operator_id
     )
     VALUES
@@ -42,7 +42,6 @@ BEGIN
         order by event_seq DESC
         limit 1),
         curr_sql,
-        edit_notes,
         r_requestor_id
     );
 

@@ -2,8 +2,7 @@ CREATE OR REPLACE FUNCTION sql2fa.edit_actions (
     req_request_id uuid,
     r_requestor_id char(4),
     requestor_action sql2fa.status_codes,
-    new_sql text,
-    edit_notes text DEFAULT ' '
+    new_sql text
 ) RETURNS void
 LANGUAGE plpgsql SECURITY DEFINER AS $$
 /*Variables*/
@@ -35,7 +34,6 @@ BEGIN
         status_change_dt,
         prev_sql_text,
         current_sql_text,
-        requestor_edit_notes,
         status_changed_by_operator_id
     )
     VALUES
@@ -47,7 +45,6 @@ BEGIN
         now(),
         prev_sql,
         curr_sql,
-        edit_notes,
         r_requestor_id
     );
 

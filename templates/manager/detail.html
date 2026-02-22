@@ -27,7 +27,7 @@
             <td>{{ event.status_change_dt }}</td>
             <td>{{ event.status_changed_by_operator_id }}</td>
             <td>{{ event.current_status }}</td>
-            <td>{{ event.approver_notes or event.requestor_edit_notes or '' }}</td>
+            <td>{{ event.approver_notes or '' }}</td>
         </tr>
         {% else %}
         <tr><td colspan="4">No history.</td></tr>

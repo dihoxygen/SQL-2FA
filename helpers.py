@@ -10,10 +10,6 @@ def login_required(f):
     """
     A decorator that protects routes so only logged-in users can access them.
 
-    How decorators work:
-      When you write @login_required above a route function, Python essentially does:
-          create = login_required(create)
-      So every call to create() actually calls decorated_function() first.
 
     What this does:
       1. Checks if 'operator_id' exists in the session (set during login).

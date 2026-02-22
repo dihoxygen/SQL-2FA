@@ -1,0 +1,1 @@
+CREATE OR REPLACE FUNCTION verify_op_exists(op_id character, )

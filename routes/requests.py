@@ -16,6 +16,7 @@ def create():
         operator_id = session['operator_id']
         sql_text = request.form['dml_statement']
         target_date = request.form['target_date']
+        
 
         with sql2fa_engine.connect() as conn:
             result = conn.execute(
@@ -109,7 +110,7 @@ def detail(request_id):
 
         status_flags = conn.execute(
             text("""
-                SELECT request_can_be_edited, request_can_be_cancelled, request_can_be_executed
+                SELECT request_can_be_edited, request_can_be_canceled, request_can_be_executed
                 FROM sql2fa."STATUS_CODES"
                 WHERE status_code = :code
             """),
@@ -121,7 +122,7 @@ def detail(request_id):
         req=req,
         events=events,
         can_edit=status_flags["request_can_be_edited"],
-        can_cancel=status_flags["request_can_be_cancelled"],
+        can_cancel=status_flags["request_can_be_canceled"],
         can_execute=status_flags["request_can_be_executed"],
     )
 
@@ -185,16 +186,14 @@ def edit(request_id):
 
     if request.method == 'POST':
         new_sql = request.form['dml_statement']
-        edit_notes = request.form.get('edit_notes', '')
 
         with sql2fa_engine.connect() as conn:
             conn.execute(
-                text("SELECT sql2fa.edit_actions(:rid, :op, 'EA', :sql, :notes)"),
+                text("SELECT sql2fa.edit_actions(:rid, :op, 'EA', :sql)"),
                 {
                     "rid": request_id,
                     "op": operator_id,
                     "sql": new_sql,
-                    "notes": edit_notes,
                 },
             )
             conn.commit()
@@ -218,12 +217,14 @@ def edit(request_id):
 def cancel(request_id):
     operator_id = session['operator_id']
 
+    cancel_notes = request.form.get('cancel_notes', '')
+
     with sql2fa_engine.connect() as conn:
         conn.execute(
-            text("SELECT sql2fa.edit_actions(:rid, :op, 'C')"),
-            {"rid": request_id, "op": operator_id},
+            text("SELECT sql2fa.cancel_actions(:rid, :op, 'C', :notes)"),
+            {"rid": request_id, "op": operator_id, "notes": cancel_notes},
         )
         conn.commit()
 
-    flash("Request cancelled.", "info")
+    flash("Request canceled.", "info")
     return redirect(url_for('requests.my_requests'))

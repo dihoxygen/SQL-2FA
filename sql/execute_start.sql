@@ -45,7 +45,6 @@ BEGIN
         now(),
         prev_sql,
         execute_sql,
-        edit_notes,
         r_requestor_id
     );
 

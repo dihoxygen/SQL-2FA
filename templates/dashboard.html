@@ -23,7 +23,7 @@
         {% for row in my_requests %}
         <div class="queue-card">
             <a href="{{ url_for('requests.detail', request_id=row.request_id) }}">
-                <strong>{{ row.request_id | truncate(8, true, '') }}</strong>
+                <strong>{{ row.request_id | string | truncate(8, true, '') }}</strong>
                 <span>Status: {{ row.current_status }}</span>
             </a>
         </div>
@@ -43,7 +43,7 @@
         {% for row in assigned_to_me %}
         <div class="queue-card">
             <a href="{{ url_for('approvals.detail', request_id=row.request_id) }}">
-                <strong>{{ row.request_id | truncate(8, true, '') }}</strong>
+                <strong>{{ row.request_id | string | truncate(8, true, '') }}</strong>
                 <span>From: {{ row.requestor_id }}</span>
             </a>
         </div>
@@ -63,7 +63,7 @@
         {% for row in needs_approver %}
         <div class="queue-card">
             <a href="{{ url_for('open_requests.accept_view', request_id=row.request_id) }}">
-                <strong>{{ row.request_id | truncate(8, true, '') }}</strong>
+                <strong>{{ row.request_id | string | truncate(8, true, '') }}</strong>
                 <span>From: {{ row.requestor_id }}</span>
             </a>
         </div>

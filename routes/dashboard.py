@@ -70,8 +70,6 @@ def home():
             {"op_id": operator_id},
         ).mappings().all()
 
-    # render_template finds dashboard.html in the templates/ folder,
-    # and makes these three variables available inside the HTML.
     return render_template(
         'dashboard.html',
         my_requests=my_requests,
