@@ -184,27 +184,29 @@ def execute(request_id):
 def edit(request_id):
     operator_id = session['operator_id']
 
-    if request.method == 'POST':
-        new_sql = request.form['dml_statement']
-
-        with sql2fa_engine.connect() as conn:
-            conn.execute(
-                text("SELECT sql2fa.edit_actions(:rid, :op, 'EA', :sql)"),
-                {
-                    "rid": request_id,
-                    "op": operator_id,
-                    "sql": new_sql,
-                },
-            )
-            conn.commit()
-
-        return redirect(url_for('requests.detail', request_id=request_id))
-
     with sql2fa_engine.connect() as conn:
         req = conn.execute(
             text('SELECT * FROM sql2fa."REQUESTS" WHERE request_id = :rid'),
             {"rid": request_id},
         ).mappings().fetchone()
+
+    if request.method == 'POST':
+        new_sql = request.form['dml_statement']
+
+        with sql2fa_engine.connect() as conn:
+            if req['current_status'] == 'D':
+                conn.execute(
+                    text("SELECT sql2fa.edit_denied_request(:rid, :op, 'EA', :sql)"),
+                    {"rid": request_id, "op": operator_id, "sql": new_sql},
+                )
+            else:
+                conn.execute(
+                    text("SELECT sql2fa.edit_actions(:rid, :op, 'EA', :sql)"),
+                    {"rid": request_id, "op": operator_id, "sql": new_sql},
+                )
+            conn.commit()
+
+        return redirect(url_for('requests.detail', request_id=request_id))
 
     return render_template('requests/edit.html', req=req)
 

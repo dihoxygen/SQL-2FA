@@ -40,9 +40,9 @@
     </thead>
     <tbody>
         {% for row in rows %}
-        <tr onclick="window.location='{{ url_for('approvals.detail', request_id=row.request_id) }}'">
+        <tr data-href="{{ url_for('approvals.detail', request_id=row.request_id) }}">
             <td>{{ row.requestor_id }}</td>
-            <td>{{ row.request_id | truncate(8, true, '') }}</td>
+            <td>{{ row.request_id | string | truncate(8, true, '') }}</td># added string to truncate function to make the uuid display correctly
             <td>{{ row.request_created_on }}</td>
             <td>{{ row.current_status }}</td>
             <td>{{ row.current_requested_sql | truncate(50) }}</td>
@@ -52,4 +52,11 @@
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+document.querySelectorAll('tr[data-href]').forEach(function(row) {
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', function() { window.location = this.dataset.href; });
+});
+</script>
 {% endblock %}

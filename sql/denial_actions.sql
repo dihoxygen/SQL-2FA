@@ -14,7 +14,8 @@ BEGIN
     --STATUS UPDATE
     UPDATE sql2fa."REQUESTS"
     SET
-        current_status = approver_decision
+        current_status = approver_decision,
+        assigned_approver = NULL
     WHERE
         request_id = req_request_id
     RETURNING current_requested_sql INTO curr_sql;
