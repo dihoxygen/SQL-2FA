@@ -19,12 +19,12 @@
 
     <div class="form-group">
         <label>DML Purpose</label>
-        <textarea readonly rows="4">{{ req.dml_purpose or 'Not provided' }}</textarea>
+        <textarea readonly rows="4">{{ req.request_reason or 'Not provided' }}</textarea>
     </div>
 
     <div class="form-group">
         <label>Potential DML Issues</label>
-        <textarea readonly rows="4">{{ req.dml_issues or 'Not provided' }}</textarea>
+        <textarea readonly rows="4">{{ req.request_potential_issues or 'Not provided' }}</textarea>
     </div>
 </div>
 

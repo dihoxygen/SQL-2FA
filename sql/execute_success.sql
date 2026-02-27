@@ -1,28 +1,25 @@
 CREATE OR REPLACE FUNCTION sql2fa.execute_success (
-    OUT req_request_id uuid,
+    req_request_id uuid,
+    execute_uuid uuid,
     r_requestor_id char(4),
     record_count int,
+    success_status sql2fa.status_codes,
     manager_dml text DEFAULT ' ',
-    reason_for_manager_dml text DEFAULT ' ',
-    OUT execute_id uuid -- returns sql text to be used in application logic (and hence the prod table)
+    reason_for_manager_dml text DEFAULT ' '
 )
+RETURNS void
 LANGUAGE plpgsql SECURITY DEFINER AS $$
-/*Variables*/
-DECLARE exec_id uuid;
-
+DECLARE curr_sql text;
 BEGIN
-
-    --GENERATE EXECUTE_ID
-    execute_id := gen_random_uuid();
 
     UPDATE sql2fa."REQUESTS"
     SET
-        execute_id = execute_id
+        execute_id = execute_uuid,
+        current_status = success_status
     WHERE
         request_id = req_request_id
-    RETURNING execute_id INTO exec_id;
+    RETURNING current_requested_sql INTO curr_sql;
 
-    --INSERT INTO EXECUTION_EVENTS
     INSERT INTO sql2fa."EXECUTION_EVENTS" (
         request_id,
         execute_id,
@@ -35,15 +32,39 @@ BEGIN
     VALUES
     (
         req_request_id,
-        exec_id,
+        execute_uuid,
         (select coalesce(max(counter), 0) + 1 from sql2fa."EXECUTION_EVENTS" 
-        where excute_id = execute_id),
+        where execute_id = execute_uuid),
         record_count,
         manager_dml,
         reason_for_manager_dml,
-        trunc(now())
+        CURRENT_DATE
     );
 
+    INSERT INTO sql2fa."REQUEST_EVENTS" (
+        request_id,
+        event_seq,
+        current_status,
+        status_change_dt,
+        prev_sql_text,
+        current_sql_text,
+        status_changed_by_operator_id
+    )
+    VALUES
+    (
+        req_request_id,
+        (select coalesce(max(event_seq), 0) + 1 from sql2fa."REQUEST_EVENTS" 
+        where request_id = req_request_id),
+        success_status,
+        now(),
+        (select current_sql_text 
+        from sql2fa."REQUEST_EVENTS"
+        where request_id = req_request_id
+        order by event_seq DESC
+        limit 1),
+        curr_sql,
+        r_requestor_id
+    );
 
 END;
 $$;

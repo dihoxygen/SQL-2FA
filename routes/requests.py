@@ -16,15 +16,19 @@ def create():
         operator_id = session['operator_id']
         sql_text = request.form['dml_statement']
         target_date = request.form['target_date']
+        request_reason = request.form['request_reason']
+        request_potential_issues = request.form['request_potential_issues']
         
 
         with sql2fa_engine.connect() as conn:
             result = conn.execute(
-                text("SELECT sql2fa.create_new_request(:requestor_id, :sql, 'Z', :target_date)"),
+                text("SELECT sql2fa.create_new_request(:requestor_id, :sql, 'Z', :target_date, :request_reason, :request_potential_issues)"),
                 {
                     "requestor_id": operator_id,
                     "sql": sql_text,
                     "target_date": target_date,
+                    "request_reason": request_reason,
+                    "request_potential_issues": request_potential_issues,
                 }
             )
             request_id = result.scalar()
@@ -136,11 +140,12 @@ def execute(request_id):
     operator_id = session['operator_id']
 
     with sql2fa_engine.connect() as conn:
-        result = conn.execute(
-            text("SELECT sql2fa.execute_start(:rid, :op, 'E')"),
+        row = conn.execute(
+            text("SELECT * FROM sql2fa.execute_start(:rid, :op, 'E')"),
             {"rid": request_id, "op": operator_id},
-        )
-        dml_to_run = result.scalar()
+        ).mappings().fetchone()
+        dml_to_run = row["execute_sql"]
+        exec_id = row["exec_id"]
         conn.commit()
 
     try:
@@ -150,9 +155,9 @@ def execute(request_id):
             prod_conn.commit()
 
         with sql2fa_engine.connect() as conn:
-            result = conn.execute(
-                text("SELECT sql2fa.execute_success(:rid, :op, :rc)"),
-                {"rid": request_id, "op": operator_id, "rc": row_count},
+            conn.execute(
+                text("SELECT sql2fa.execute_success(:rid, :eid, :op, :rc, 'S')"),
+                {"rid": request_id, "eid": exec_id, "op": operator_id, "rc": row_count},
             )
             conn.commit()
 
@@ -161,12 +166,11 @@ def execute(request_id):
     except Exception as e:
         with sql2fa_engine.connect() as conn:
             conn.execute(
-                text("SELECT sql2fa.execute_failure(:rid, :exec_id, :reason, :eid, 'N')"),
+                text("SELECT sql2fa.execute_failure(:rid, :reason, 'N', :eid)"),
                 {
                     "rid": request_id,
-                    "exec_id": None,
                     "reason": str(e),
-                    "eid": None,
+                    "eid": exec_id,
                 },
             )
             conn.commit()

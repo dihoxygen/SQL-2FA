@@ -24,7 +24,7 @@ def list_open():
 
     query = """
         SELECT request_id, requestor_id, current_requested_sql,
-               request_created_on
+               request_created_on, request_reason, request_potential_issues
         FROM sql2fa."REQUESTS"
         WHERE assigned_approver IS NULL
           AND current_status = 'Z'
