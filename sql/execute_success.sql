@@ -20,7 +20,7 @@ BEGIN
         request_id = req_request_id
     RETURNING current_requested_sql INTO curr_sql;
 
-    INSERT INTO sql2fa."EXECUTION_EVENTS" (
+    INSERT INTO sql2fa."REQUEST_EXECUTIONS" (
         request_id,
         execute_id,
         counter,
@@ -33,7 +33,7 @@ BEGIN
     (
         req_request_id,
         execute_uuid,
-        (select coalesce(max(counter), 0) + 1 from sql2fa."EXECUTION_EVENTS" 
+        (select coalesce(max(counter), 0) + 1 from sql2fa."REQUEST_EXECUTIONS" 
         where execute_id = execute_uuid),
         record_count,
         manager_dml,

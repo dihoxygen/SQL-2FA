@@ -8,12 +8,12 @@ CREATE OR REPLACE FUNCTION sql2fa.execute_start (
 LANGUAGE plpgsql SECURITY DEFINER AS $$
 /*Variables*/
 
-/*Variables*/
 DECLARE prev_sql text;
 
 BEGIN
-
-    exec_id := gen_random_uuid();
+    SELECT COALESCE(execute_id, gen_random_uuid()) 
+    INTO exec_id 
+    FROM sql2fa."REQUESTS" WHERE request_id = req_request_id;
 
     --UPDATE STATUS AND ASSIGN EXECUTE_ID
     UPDATE sql2fa."REQUESTS"
@@ -46,4 +46,5 @@ BEGIN
         r_requestor_id
     );
 
-END
+END;
+$$
