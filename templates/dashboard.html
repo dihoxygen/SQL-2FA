@@ -24,7 +24,7 @@
         <div class="queue-card">
             <a href="{{ url_for('requests.detail', request_id=row.request_id) }}">
                 <strong>{{ row.request_id | string | truncate(8, true, '') }}</strong>
-                <span>Status: {{ row.current_status }}</span>
+                <span>Status: {{ row.status_description }}</span>
             </a>
         </div>
         {% endfor %}

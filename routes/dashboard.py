@@ -29,12 +29,13 @@ def home():
         # Only shows non-terminal statuses (not Executed, Cancelled, Manager DML).
         my_requests = conn.execute(
             text("""
-                SELECT request_id, current_status, current_requested_sql,
-                       request_created_on, assigned_approver
-                FROM sql2fa."REQUESTS"
-                WHERE requestor_id = :op_id
-                  AND current_status NOT IN ('E', 'C', 'M')
-                ORDER BY request_created_on DESC
+                SELECT r.request_id, r.requestor_id, r.current_status, s.status as status_description,
+                       r.current_requested_sql, r.request_created_on
+                FROM sql2fa."REQUESTS" r
+                JOIN sql2fa."STATUS_CODES" s ON r.current_status = s.status_code
+                WHERE r.requestor_id = :op_id
+                  AND r.current_status NOT IN ('C', 'M', 'S')
+                ORDER BY r.request_created_on DESC
                 LIMIT 10
             """),
             {"op_id": operator_id},
@@ -43,11 +44,12 @@ def home():
         # QUEUE 2: Assigned to me as approver -- requests waiting for my review.
         assigned_to_me = conn.execute(
             text("""
-                SELECT r.request_id, r.requestor_id, r.current_status,
+                SELECT r.request_id, r.requestor_id, r.current_status, s.status as status_description,
                        r.current_requested_sql, r.request_created_on
                 FROM sql2fa."REQUESTS" r
+                JOIN sql2fa."STATUS_CODES" s ON r.current_status = s.status_code
                 WHERE r.assigned_approver = :op_id
-                  AND r.current_status NOT IN ('E', 'C', 'M')
+                  AND r.current_status NOT IN ('C', 'M', 'S')
                 ORDER BY r.request_created_on DESC
                 LIMIT 10
             """),
