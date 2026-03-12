@@ -8,9 +8,14 @@
         <h1>Dashboard</h1>
         <p>Welcome back. Here's a quick look at your queues.</p>
     </div>
-    <a href="{{ url_for('requests.create') }}">
-        <button type="button" class="btn-primary">+ New Request</button>
-    </a>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <a href="{{ url_for('requests.create') }}">
+            <button type="button" class="btn-primary">+ New Request</button>
+        </a>
+        <a href="{{ url_for('query_tool.query_tool') }}">
+            <button type="button" class="btn-secondary">Query Tool</button>
+        </a>
+    </div>
 </div>
 
 <section class="queue-section">

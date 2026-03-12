@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Query Tool - SQL 2FA{% endblock %}
+
+{% block content %}
+
+<div class="query-tool-page">
+    <h1>Query Tool</h1>
+
+    {# ── Mode Tabs ─────────────────────────────────────────── #}
+    <div class="query-tabs">
+        <button type="button" class="query-tab {% if active_tab == 'table' %}active{% endif %}" onclick="switchTab('table')">Table Selector</button>
+        <button type="button" class="query-tab {% if active_tab == 'freeform' %}active{% endif %}" onclick="switchTab('freeform')">Freeform SQL</button>
+    </div>
+
+    {# ── Table Selector Panel ──────────────────────────────── #}
+    <div id="panel-table" class="query-panel" {% if active_tab != 'table' %}style="display:none"{% endif %}>
+        <form method="POST" action="{{ url_for('query_tool.execute_table') }}" onsubmit="return prepareTableSubmit()">
+            <div class="form-group">
+                <label for="table-select">Table</label>
+                <select id="table-select" name="table" onchange="onTableChange()">
+                    <option value="">-- Select a table --</option>
+                    {% for tbl in tables_meta %}
+                    <option value="{{ tbl }}" {% if selected_table is defined and selected_table == tbl %}selected{% endif %}>{{ tbl }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div id="columns-section" class="form-group" style="display:none">
+                <label>Columns</label>
+                <div class="column-toggle-row">
+                    <label class="select-all-label"><input type="checkbox" id="select-all-cols" onchange="toggleAllColumns(this)"> Select All</label>
+                </div>
+                <div id="column-list" class="column-list"></div>
+            </div>
+
+            <div id="conditions-section" style="display:none">
+                <label>Conditions</label>
+                <div id="conditions-container"></div>
+                <button type="button" class="btn-secondary add-condition-btn" onclick="addCondition()">+ Add Condition</button>
+            </div>
+
+            <input type="hidden" name="conditions_json" id="conditions-json" value="[]">
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Execute</button>
+            </div>
+        </form>
+    </div>
+
+    {# ── Freeform SQL Panel ────────────────────────────────── #}
+    <div id="panel-freeform" class="query-panel" {% if active_tab != 'freeform' %}style="display:none"{% endif %}>
+        <form method="POST" action="{{ url_for('query_tool.execute_freeform') }}">
+            <div class="form-group">
+                <label for="sql-editor">SQL Statement</label>
+                <textarea id="sql-editor" name="sql_text" rows="10" placeholder="SELECT ...">{{ freeform_sql if freeform_sql is defined else '' }}</textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Execute</button>
+            </div>
+        </form>
+    </div>
+
+    {# ── Results ───────────────────────────────────────────── #}
+    {% if columns is not none and rows is not none %}
+    <div class="results-section">
+        <div class="results-header">
+            <span>Showing {{ rows | length }} row{{ 's' if rows | length != 1 else '' }}</span>
+            <form method="POST" action="{{ url_for('query_tool.export_csv') }}" style="display:inline">
+                <input type="hidden" name="export_params" value="{{ export_params_json }}">
+                <button type="submit" class="btn-secondary">Export CSV</button>
+            </form>
+        </div>
+        {% if rows | length > 0 %}
+        <div class="results-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        {% for col in columns %}
+                        <th>{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        {% for cell in row %}
+                        <td>{{ cell if cell is not none else '' }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>Query returned no rows.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{# ── CodeMirror CDN ───────────────────────────────────────── #}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/sql/sql.min.js"></script>
+
+<script>
+(function () {
+    var tablesData = {{ tables_json | safe }};
+    var _preselectedCols = {{ (selected_columns | default([])) | tojson }};
+    var _preselectedConds = {{ (selected_conditions | default([])) | tojson }};
+
+    var operatorOptions = [
+        {key: 'eq',     label: 'is equal to'},
+        {key: 'neq',    label: 'is not equal to'},
+        {key: 'in',     label: 'is one of'},
+        {key: 'not_in', label: 'is not one of'},
+        {key: 'lt',     label: 'is less than'},
+        {key: 'gt',     label: 'is greater than'},
+        {key: 'lte',    label: 'is less than or equal to'},
+        {key: 'gte',    label: 'is greater than or equal to'},
+    ];
+
+    /* ── Tab Switching ─────────────────────────────────────── */
+    window.switchTab = function (tab) {
+        document.getElementById('panel-table').style.display = tab === 'table' ? '' : 'none';
+        document.getElementById('panel-freeform').style.display = tab === 'freeform' ? '' : 'none';
+        document.querySelectorAll('.query-tab').forEach(function (btn, i) {
+            btn.classList.toggle('active', (i === 0 && tab === 'table') || (i === 1 && tab === 'freeform'));
+        });
+        if (tab === 'freeform' && window._cmEditor) {
+            window._cmEditor.refresh();
+        }
+    };
+
+    /* ── Table Change ──────────────────────────────────────── */
+    window.onTableChange = function () {
+        var table = document.getElementById('table-select').value;
+        var colSection = document.getElementById('columns-section');
+        var condSection = document.getElementById('conditions-section');
+        var colList = document.getElementById('column-list');
+        var condContainer = document.getElementById('conditions-container');
+
+        colList.innerHTML = '';
+        condContainer.innerHTML = '';
+        document.getElementById('select-all-cols').checked = false;
+
+        if (!table || !tablesData[table]) {
+            colSection.style.display = 'none';
+            condSection.style.display = 'none';
+            return;
+        }
+
+        colSection.style.display = '';
+        condSection.style.display = '';
+
+        var cols = tablesData[table];
+
+        cols.forEach(function (col) {
+            var label = document.createElement('label');
+            label.className = 'column-check';
+            var cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.name = 'columns';
+            cb.value = col;
+            if (_preselectedCols.indexOf(col) !== -1) cb.checked = true;
+            label.appendChild(cb);
+            label.appendChild(document.createTextNode(' ' + col));
+            colList.appendChild(label);
+        });
+
+        _preselectedConds.forEach(function (c) { addCondition(c.field, c.operator, c.value); });
+        _preselectedConds = [];
+    };
+
+    /* ── Select All Columns ────────────────────────────────── */
+    window.toggleAllColumns = function (masterCb) {
+        document.querySelectorAll('#column-list input[type=checkbox]').forEach(function (cb) {
+            cb.checked = masterCb.checked;
+        });
+    };
+
+    /* ── Conditions ────────────────────────────────────────── */
+    window.addCondition = function (preField, preOp, preVal) {
+        var table = document.getElementById('table-select').value;
+        if (!table || !tablesData[table]) return;
+        var cols = tablesData[table];
+
+        var row = document.createElement('div');
+        row.className = 'condition-row';
+
+        var fieldSel = document.createElement('select');
+        fieldSel.className = 'cond-field';
+        cols.forEach(function (col) {
+            var opt = document.createElement('option');
+            opt.value = col;
+            opt.textContent = col;
+            if (col === preField) opt.selected = true;
+            fieldSel.appendChild(opt);
+        });
+
+        var opSel = document.createElement('select');
+        opSel.className = 'cond-operator';
+        operatorOptions.forEach(function (o) {
+            var opt = document.createElement('option');
+            opt.value = o.key;
+            opt.textContent = o.label;
+            if (o.key === preOp) opt.selected = true;
+            opSel.appendChild(opt);
+        });
+
+        var valInput = document.createElement('input');
+        valInput.type = 'text';
+        valInput.className = 'cond-value';
+        valInput.placeholder = 'Value';
+        if (preVal !== undefined) valInput.value = preVal;
+
+        var removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn-danger cond-remove';
+        removeBtn.textContent = '\u00D7';
+        removeBtn.onclick = function () { row.remove(); };
+
+        row.appendChild(fieldSel);
+        row.appendChild(opSel);
+        row.appendChild(valInput);
+        row.appendChild(removeBtn);
+        document.getElementById('conditions-container').appendChild(row);
+    };
+
+    /* ── Serialize Conditions Before Submit ─────────────────── */
+    window.prepareTableSubmit = function () {
+        var condRows = document.querySelectorAll('.condition-row');
+        var conditions = [];
+        condRows.forEach(function (row) {
+            conditions.push({
+                field: row.querySelector('.cond-field').value,
+                operator: row.querySelector('.cond-operator').value,
+                value: row.querySelector('.cond-value').value,
+            });
+        });
+        document.getElementById('conditions-json').value = JSON.stringify(conditions);
+        return true;
+    };
+
+    /* ── CodeMirror Init ───────────────────────────────────── */
+    var textarea = document.getElementById('sql-editor');
+    if (textarea) {
+        window._cmEditor = CodeMirror.fromTextArea(textarea, {
+            mode: 'text/x-pgsql',
+            lineNumbers: true,
+            indentWithTabs: false,
+            tabSize: 4,
+            lineWrapping: true,
+            autofocus: false,
+        });
+        window._cmEditor.setSize(null, 240);
+    }
+
+    /* ── Restore table selector state on load ──────────────── */
+    var sel = document.getElementById('table-select');
+    if (sel && sel.value) {
+        onTableChange();
+    }
+})();
+</script>
+
+{% endblock %}

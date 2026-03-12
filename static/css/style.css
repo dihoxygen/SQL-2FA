@@ -77,11 +77,13 @@ a:hover {
    =================================================================== */
 .navbar {
     background: var(--gray-900);
-    padding: 0 2rem;
+    padding: 0.5rem 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 56px;
+    min-height: 56px;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -100,6 +102,7 @@ a:hover {
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    flex-wrap: wrap;
 }
 
 .nav-links a {
@@ -826,6 +829,203 @@ button.btn-secondary:hover {
 .form-group .CodeMirror-focused {
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+/* ===================================================================
+   Query Tool
+   =================================================================== */
+.query-tool-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.query-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--gray-200);
+    margin: 1.25rem 0 0;
+}
+
+.query-tab {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    background: none;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.query-tab:hover {
+    color: var(--gray-800);
+    background: none;
+    border-color: transparent;
+    border-bottom-color: var(--gray-300);
+}
+
+.query-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    background: none;
+}
+
+.query-panel {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Column checkboxes */
+.column-toggle-row {
+    margin-bottom: 0.5rem;
+}
+
+.select-all-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gray-600);
+    cursor: pointer;
+    user-select: none;
+}
+
+.column-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.35rem 1rem;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+}
+
+.column-check {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.88rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    user-select: none;
+    padding: 0.2rem 0;
+}
+
+.column-check input[type="checkbox"] {
+    accent-color: var(--primary);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+/* Condition rows */
+.condition-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.condition-row select,
+.condition-row input[type="text"] {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.85rem;
+    font-family: var(--font);
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--gray-800);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.condition-row select:focus,
+.condition-row input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.cond-field {
+    flex: 1;
+    min-width: 0;
+}
+
+.cond-operator {
+    flex: 1.2;
+    min-width: 0;
+}
+
+.cond-value {
+    flex: 1;
+    min-width: 0;
+}
+
+.cond-remove {
+    padding: 0.35rem 0.6rem;
+    font-size: 1rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.add-condition-btn {
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+}
+
+/* Query panel CodeMirror overrides */
+.query-panel .CodeMirror {
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+}
+
+.query-panel .CodeMirror-focused {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+/* Results */
+.results-section {
+    margin-top: 1.5rem;
+}
+
+.results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+.results-scroll {
+    overflow-x: auto;
+    border-radius: var(--radius-lg);
+}
+
+.results-scroll .data-table {
+    margin-top: 0;
+}
+
+@media (max-width: 768px) {
+    .query-tool-page {
+        max-width: 100%;
+    }
+
+    .condition-row {
+        flex-wrap: wrap;
+    }
+
+    .cond-field,
+    .cond-operator,
+    .cond-value {
+        flex: 1 1 100%;
+    }
 }
 
 /* ===================================================================

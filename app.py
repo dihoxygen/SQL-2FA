@@ -14,6 +14,7 @@ from routes.requests import requests_bp
 from routes.open_requests import open_requests_bp
 from routes.approvals import approvals_bp
 from routes.manager import manager_bp
+from routes.query_tool import query_tool_bp
 
 app = Flask(__name__)
 
@@ -31,6 +32,7 @@ app.register_blueprint(requests_bp)
 app.register_blueprint(open_requests_bp)
 app.register_blueprint(approvals_bp)
 app.register_blueprint(manager_bp)
+app.register_blueprint(query_tool_bp)
 
 
 @app.route('/')
