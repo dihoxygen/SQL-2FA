@@ -2,6 +2,12 @@
 
 {% block title %}Edit Request - SQL 2FA{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/sql/sql.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <h1>Edit Request</h1>
 <p><strong>Request ID:</strong> {{ req.request_id }}</p>
@@ -34,4 +40,15 @@
         </a>
     </div>
 </form>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("dml_statement"), {
+    mode: "text/x-sql",
+    lineNumbers: true,
+    matchBrackets: true,
+    indentWithTabs: true,
+    tabSize: 4
+});
+editor.setSize(null, 200);
+</script>
 {% endblock %}

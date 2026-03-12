@@ -2,6 +2,12 @@
 
 {% block title %}Create New Request - SQL 2FA{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/sql/sql.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <h1>Create New Request</h1>
 <p>Employee Number: <strong>{{ session['operator_id'] }}</strong></p>
@@ -35,4 +41,21 @@
         <a href="{{ url_for('dashboard.home') }}"><button type="button">Cancel</button></a>
     </div>
 </form>
+
+<script>
+var dmlTextarea = document.getElementById("dml_statement");
+var editor = CodeMirror.fromTextArea(dmlTextarea, {
+    mode: "text/x-sql",
+    lineNumbers: true,
+    matchBrackets: true,
+    indentWithTabs: true,
+    tabSize: 4
+});
+editor.setSize(null, 200);
+
+// Keep the underlying textarea in sync so required validation works.
+editor.on("change", function () {
+    editor.save();
+});
+</script>
 {% endblock %}
