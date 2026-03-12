@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - SQL 2FA{% endblock %}
+
+{% block content %}
+<h1>Settings</h1>
+<p>Manage account and display preferences.</p>
+
+<section class="queue-section settings-section">
+    <h2>Change Password</h2>
+    <p>Update your account password.</p>
+    <div class="form-actions">
+        <a href="{{ url_for('auth.change_password') }}" class="btn btn-primary">Change Password</a>
+    </div>
+</section>
+
+<section class="queue-section settings-section">
+    <h2>Dark Mode</h2>
+    <p>Manage dark mode preferences.</p>
+    <div class="form-actions">
+        <a href="{{ url_for('auth.dark_mode_settings') }}" class="btn btn-primary">Dark Mode</a>
+    </div>
+</section>
+{% endblock %}

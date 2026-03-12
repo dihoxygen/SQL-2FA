@@ -117,6 +117,26 @@ def change_password():
     return render_template('change_password.html')
 
 
+@auth_bp.route('/settings')
+def settings():
+    """
+    Settings landing page for account preferences.
+    """
+    if 'operator_id' not in session:
+        return redirect(url_for('auth.login'))
+    return render_template('settings.html')
+
+
+@auth_bp.route('/settings/dark-mode')
+def dark_mode_settings():
+    """
+    Settings page for dark mode preference.
+    """
+    if 'operator_id' not in session:
+        return redirect(url_for('auth.login'))
+    return render_template('dark_mode.html')
+
+
 @auth_bp.route('/logout')
 def logout():
     """

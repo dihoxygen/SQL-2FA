@@ -3,6 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function () {
+            var key = "sql2fa-theme";
+            var savedTheme = null;
+            try {
+                savedTheme = localStorage.getItem(key);
+            } catch (error) {
+                savedTheme = null;
+            }
+
+            var isValidSavedTheme = savedTheme === "dark" || savedTheme === "light";
+            var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+            var theme = isValidSavedTheme ? savedTheme : (prefersDark ? "dark" : "light");
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,7 +35,7 @@
             <a href="{{ url_for('approvals.assigned_to_me') }}">Approvals</a>
             <a href="{{ url_for('open_requests.list_open') }}">Open Requests</a>
             <a href="{{ url_for('manager.manager_dashboard') }}">Manager</a>
-            <a href="{{ url_for('auth.change_password') }}">Password</a>
+            <a href="{{ url_for('auth.settings') }}">Settings</a>
             <a href="{{ url_for('auth.logout') }}">Logout</a>
         </div>
     </nav>
@@ -38,5 +54,54 @@
         {% block content %}{% endblock %}
     </main>
 
+    <script>
+        (function () {
+            var key = "sql2fa-theme";
+
+            function getCurrentTheme() {
+                var current = document.documentElement.getAttribute("data-theme");
+                return current === "dark" ? "dark" : "light";
+            }
+
+            function updateSettingsControls(theme) {
+                var toggle = document.getElementById("dark-mode-toggle");
+                if (toggle) {
+                    toggle.checked = theme === "dark";
+                }
+            }
+
+            function applyTheme(theme) {
+                var safeTheme = theme === "dark" ? "dark" : "light";
+                document.documentElement.setAttribute("data-theme", safeTheme);
+                try {
+                    localStorage.setItem(key, safeTheme);
+                } catch (error) {
+                    // Ignore storage errors and still apply the theme for this page load.
+                }
+                updateSettingsControls(safeTheme);
+            }
+
+            window.sql2faSetTheme = function (isDark) {
+                applyTheme(isDark ? "dark" : "light");
+            };
+
+            window.sql2faGetTheme = function () {
+                return getCurrentTheme();
+            };
+
+            document.addEventListener("DOMContentLoaded", function () {
+                var toggle = document.getElementById("dark-mode-toggle");
+                updateSettingsControls(getCurrentTheme());
+
+                if (!toggle) {
+                    return;
+                }
+
+                toggle.addEventListener("change", function () {
+                    window.sql2faSetTheme(toggle.checked);
+                });
+            });
+        })();
+    </script>
 </body>
 </html>

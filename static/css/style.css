@@ -827,3 +827,188 @@ button.btn-secondary:hover {
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
 }
+
+/* ===================================================================
+   Settings
+   =================================================================== */
+.settings-section {
+    margin-top: 1rem;
+}
+
+.settings-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.4rem;
+}
+
+.settings-toggle-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.settings-toggle-input {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* ===================================================================
+   Dark Mode
+   =================================================================== */
+[data-theme="dark"] body {
+    background-color: #111827;
+    color: #e5e7eb;
+}
+
+[data-theme="dark"] a {
+    color: #a5b4fc;
+}
+
+[data-theme="dark"] .navbar {
+    background: #0b1220;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .nav-links a {
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .nav-links a:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.16);
+}
+
+[data-theme="dark"] .content h1,
+[data-theme="dark"] .content h2,
+[data-theme="dark"] .content h3 {
+    color: #f8fafc;
+}
+
+[data-theme="dark"] .content p,
+[data-theme="dark"] .queue-card span {
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .queue-section,
+[data-theme="dark"] .table-card,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .filter-bar {
+    background: #1f2937;
+    border-color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .queue-card {
+    border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .queue-card a:hover,
+[data-theme="dark"] .data-table tbody tr[onclick]:hover {
+    background: #273449;
+}
+
+[data-theme="dark"] .data-table {
+    background: #1f2937;
+}
+
+[data-theme="dark"] .data-table thead {
+    background: #0f172a;
+}
+
+[data-theme="dark"] .data-table th {
+    color: #cbd5e1;
+    border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .data-table td {
+    color: #e2e8f0;
+    border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .form-group label,
+[data-theme="dark"] .filter-group label,
+[data-theme="dark"] .settings-toggle-label {
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group select,
+[data-theme="dark"] .form-group textarea,
+[data-theme="dark"] .filter-group input,
+[data-theme="dark"] .filter-group select {
+    background: #111827;
+    color: #e2e8f0;
+    border-color: #475569;
+}
+
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .form-group select:focus,
+[data-theme="dark"] .form-group textarea:focus,
+[data-theme="dark"] .filter-group input:focus,
+[data-theme="dark"] .filter-group select:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+}
+
+[data-theme="dark"] button,
+[data-theme="dark"] .btn {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-color: #475569;
+}
+
+[data-theme="dark"] button:hover,
+[data-theme="dark"] .btn:hover {
+    background: #334155;
+    color: #f8fafc;
+    border-color: #64748b;
+}
+
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] button.btn-primary {
+    background: #6366f1;
+    border-color: #6366f1;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .btn-primary:hover,
+[data-theme="dark"] button.btn-primary:hover {
+    background: #4f46e5;
+    border-color: #4f46e5;
+}
+
+[data-theme="dark"] .btn-secondary,
+[data-theme="dark"] button.btn-secondary {
+    background: #334155;
+    color: #e2e8f0;
+    border-color: #64748b;
+}
+
+[data-theme="dark"] .flash-success {
+    background: #052e16;
+    color: #86efac;
+    border-left-color: #22c55e;
+}
+
+[data-theme="dark"] .flash-error,
+[data-theme="dark"] .flash-danger {
+    background: #450a0a;
+    color: #fca5a5;
+    border-left-color: #ef4444;
+}
+
+[data-theme="dark"] .flash-warning {
+    background: #451a03;
+    color: #fcd34d;
+    border-left-color: #f59e0b;
+}
+
+[data-theme="dark"] .flash-info {
+    background: #082f49;
+    color: #7dd3fc;
+    border-left-color: #38bdf8;
+}
