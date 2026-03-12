@@ -107,6 +107,8 @@
 <script>
 (function () {
     var tablesData = {{ tables_json | safe }};
+    var _preselectedCols = {{ (selected_columns | default([])) | tojson }};
+    var _preselectedConds = {{ (selected_conditions | default([])) | tojson }};
 
     var operatorOptions = [
         {key: 'eq',     label: 'is equal to'},
@@ -153,11 +155,6 @@
         condSection.style.display = '';
 
         var cols = tablesData[table];
-        {% if selected_columns is defined and selected_columns %}
-        var preselected = {{ selected_columns | tojson }};
-        {% else %}
-        var preselected = [];
-        {% endif %}
 
         cols.forEach(function (col) {
             var label = document.createElement('label');
@@ -166,16 +163,14 @@
             cb.type = 'checkbox';
             cb.name = 'columns';
             cb.value = col;
-            if (preselected.indexOf(col) !== -1) cb.checked = true;
+            if (_preselectedCols.indexOf(col) !== -1) cb.checked = true;
             label.appendChild(cb);
             label.appendChild(document.createTextNode(' ' + col));
             colList.appendChild(label);
         });
 
-        {% if selected_conditions is defined and selected_conditions %}
-        var preConds = {{ selected_conditions | tojson }};
-        preConds.forEach(function (c) { addCondition(c.field, c.operator, c.value); });
-        {% endif %}
+        _preselectedConds.forEach(function (c) { addCondition(c.field, c.operator, c.value); });
+        _preselectedConds = [];
     };
 
     /* ── Select All Columns ────────────────────────────────── */
