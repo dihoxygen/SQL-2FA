@@ -1,6 +1,7 @@
 # SQL2FA
 
-Finish me later...
+- An application that facilitates a peer-reviewed change management system for implementation analysts update production databases.
+- 
 
-#### Passwords
-During DEV, test users passwords stored locally on *keepass*
+## Notes
+- Account cannot be created in the application. Contact the DB admin
